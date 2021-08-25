@@ -12,4 +12,5 @@ const TrackSchema = new Schema<Track>({
 
 const TrackModel = model<Track>('Tracks', TrackSchema);
 
-module.exports = TrackModel;
+export default TrackModel;
+// module.exports = TrackModel;

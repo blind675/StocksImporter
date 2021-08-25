@@ -1,8 +1,13 @@
-export default function startServer() {
+import {importCSVData, isCSVDataAlreadyImported} from "./services/importer";
 
-    //TODO: read CSV
+export default async function startServer() {
 
-    //TODO: upload CSV to DB
+    const isCSVImported = await isCSVDataAlreadyImported();
+    if(isCSVImported) {
+        console.log('Importer : CSV data already imported');
+    } else {
+        await importCSVData();
+    }
 
-    //TODO: start cron job
+    // TODO: start cron jobs
 }

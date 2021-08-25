@@ -41,4 +41,5 @@ const TickerSchema = new Schema<Ticker>({
 
 const TickerModel = model<Ticker>('Tickers', TickerSchema);
 
-module.exports = TickerModel;
+export default TickerModel;
+// module.exports = TickerModel;

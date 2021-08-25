@@ -13,12 +13,12 @@ index.use('/api/v1/tickers', tickersRoutes);
 
 // connect to DB and Start Server;
 mongoose.connect(process.env.DB_URI || '', {useUnifiedTopology: true, useNewUrlParser: true}, async () => {
-        console.log('DB     : Connected')
+        console.log('DB       : Connected')
 
         const PORT = process.env.PORT || 5000;
-        index.listen(PORT, () => console.log(`Server : Running on port ${PORT}`));
+        index.listen(PORT, () => console.log(`Server   : Running on port ${PORT}`));
 
-        startServer();
+        await startServer();
     }
 );
 
