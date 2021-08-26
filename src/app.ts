@@ -1,4 +1,4 @@
-import {importCSVData, isCSVDataAlreadyImported} from "./services/importer";
+import {importCSVData, isCSVDataAlreadyImported} from "./jobs/importCSV";
 
 export default async function startServer() {
 
