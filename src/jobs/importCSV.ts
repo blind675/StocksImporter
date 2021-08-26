@@ -1,7 +1,7 @@
-import readCSV from "./csv";
+import readCSV from "../services/csv";
 import TickerModel from "../models/Ticker";
-import Track from "../models/Track";
 import Ticker from "../models/Ticker";
+
 const cliProgress = require('cli-progress');
 
 export async function importCSVData() {
@@ -15,26 +15,22 @@ export async function importCSVData() {
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 
     // start the progress bar with a total value of 200 and start value of 0
-    progressBar.start(CSVData.length, 0);
+    progressBar.start(CSVData.length - 1, 0);
 
     for (let i = 0; i < CSVData.length; i++) {
         const CSVRow = CSVData[i];
 
-        const ticker = new Ticker({
-            symbol: CSVRow.Code,
-            name: CSVRow.Name,
-            type: CSVRow.Type
-        });
-        await ticker.save();
-
-        const trackData = new Track({
-            symbol: CSVRow.Code
-        });
-        await trackData.save();
+        if (CSVRow.Type && CSVRow.Code && CSVRow.Type) {
+            const ticker = new Ticker({
+                symbol: CSVRow.Code,
+                name: CSVRow.Name,
+                type: CSVRow.Type
+            });
+            await ticker.save();
+        }
 
         // update the current value in your application..
         progressBar.update(i);
-
     }
 
     // stop the progress bar

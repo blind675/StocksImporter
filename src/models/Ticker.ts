@@ -9,6 +9,11 @@ export interface Ticker extends Document{
     county?: string;
     currency?: string;
     isin?: string;
+    tracking?: {
+        updateInfoDate: Date;
+        updatePriceDate: Date;
+        updateHistoryDate: Date;
+    }
     // pays_dividends?: boolean;
     // dividends_regularity?: string; //week/month/quarter/year;
     priceHistory?: [ {
@@ -36,7 +41,12 @@ const TickerSchema = new Schema<Ticker>({
     priceHistory: [{
         date: { type: Date, required: true },
         price: { type: Number, required: true },
-    }]
+    }],
+    tracking: {
+        updateInfoDate: Date,
+        updatePriceDate: Date,
+        updateHistoryDate: Date,
+    }
 });
 
 const TickerModel = model<Ticker>('Tickers', TickerSchema);
