@@ -1,13 +1,18 @@
-import {importCSVData, isCSVDataAlreadyImported} from "./jobs/importCSV";
+import {isDataAlreadyImported} from "./jobs/importCSV";
+import {updateTickersDetails} from "./jobs/updateDetails";
+import {importTickers} from "./jobs/importTickers";
 
 export default async function startServer() {
 
-    const isCSVImported = await isCSVDataAlreadyImported();
-    if(isCSVImported) {
-        console.log('Importer : CSV data already imported');
+    const isDataImported = await isDataAlreadyImported();
+    if (isDataImported) {
+        console.log('Importer : Data already imported');
     } else {
-        await importCSVData();
+        // import tickers
+        await importTickers();
+
+        // update tickers details
+        await updateTickersDetails();
     }
 
-    // TODO: start cron jobs
 }

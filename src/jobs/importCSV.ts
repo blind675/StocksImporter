@@ -4,6 +4,9 @@ import Ticker from "../models/Ticker";
 
 const cliProgress = require('cli-progress');
 
+/**
+ * @deprecated use getTickers() instead
+ */
 export async function importCSVData() {
 
     console.log('Importer : Start reading CSV file');
@@ -24,7 +27,13 @@ export async function importCSVData() {
             const ticker = new Ticker({
                 symbol: CSVRow.Code,
                 name: CSVRow.Name,
-                type: CSVRow.Type
+                type: CSVRow.Type,
+                details: {
+                    exchange: CSVRow.Exchange,
+                    county: CSVRow.Country,
+                    currency: CSVRow.Currency,
+                    isin: CSVRow.Isin
+                }
             });
             await ticker.save();
         }
@@ -38,7 +47,7 @@ export async function importCSVData() {
     console.log('Importer : Finished importing CSV data');
 }
 
-export async function isCSVDataAlreadyImported() {
+export async function isDataAlreadyImported() {
     const tickersCount = await TickerModel.estimatedDocumentCount();
 
     return tickersCount > 10;
