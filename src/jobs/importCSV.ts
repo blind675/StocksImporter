@@ -1,5 +1,4 @@
 import readCSV from "../services/csv";
-import TickerModel from "../models/Ticker";
 import Ticker from "../models/Ticker";
 
 const cliProgress = require('cli-progress');
@@ -45,10 +44,4 @@ export async function importCSVData() {
     // stop the progress bar
     progressBar.stop();
     console.log('Importer : Finished importing CSV data');
-}
-
-export async function isDataAlreadyImported() {
-    const tickersCount = await TickerModel.estimatedDocumentCount();
-
-    return tickersCount > 10;
 }

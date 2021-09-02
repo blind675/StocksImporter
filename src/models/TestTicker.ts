@@ -1,6 +1,6 @@
 import {Schema, Document, model} from 'mongoose';
 
-export interface Ticker extends Document {
+export interface TestTicker extends Document {
     symbol: string;
     name: string;
     type?: string;
@@ -29,15 +29,15 @@ export interface Ticker extends Document {
     priceHistory?: {
         date: Date;
         price: number // = open+close / 2;
-    }[];
+    } [];
     dividendsHistory?: {
         exDate: Date;
         paymentDate: Date;
         amount: number;
-    }[];
+    } [];
 }
 
-const TickerSchema = new Schema<Ticker>({
+const TestTickerSchema = new Schema<TestTicker>({
     symbol: {type: String, required: true},
     name: {type: String, required: true},
     type: String,
@@ -78,6 +78,6 @@ const TickerSchema = new Schema<Ticker>({
     }
 });
 
-const TickerModel = model<Ticker>('Tickers', TickerSchema);
+const TestTickerModel = model<TestTicker>('TestTickers', TestTickerSchema);
 
-export default TickerModel;
+export default TestTickerModel;

@@ -1,18 +1,6 @@
 import axios from "axios";
-import {sleep} from "../utils";
+import {formatDateForAPIRequest, sleep} from "../utils";
 import {API_DELAY, EXCHANGES, PAGE_SIZE} from "../../constants";
-
-export interface ITickerResponse {
-    ticker: string;
-    name: string;
-    market: string;
-    locale: string;
-    primary_exchange: string;
-    type: string;
-    currency_name: string;
-    cik: string;
-    last_updated_utc: Date;
-}
 
 export interface ITickerDetailsResponse {
     logo: string;
@@ -60,6 +48,18 @@ export async function fetchTickerDetailsForSymbol(tickerSymbol: string): Promise
     }
 }
 
+export interface ITickerResponse {
+    ticker: string;
+    name: string;
+    market: string;
+    locale: string;
+    primary_exchange: string;
+    type: string;
+    currency_name: string;
+    cik: string;
+    last_updated_utc: Date;
+}
+
 export async function fetchTickers(): Promise<ITickerResponse[] | undefined> {
     type responseType = {
         data: {
@@ -98,4 +98,76 @@ export async function fetchTickers(): Promise<ITickerResponse[] | undefined> {
         // fetch ticker error
         return undefined;
     }
+}
+
+export interface ITickerDividendsResponse {
+    amount: number;
+    exDate: string;
+    paymentDate: string;
+    recordDate: string;
+    ticker: string;
+}
+
+export async function fetchTickerDividendsForSymbol(tickerSymbol: string): Promise<ITickerDividendsResponse[] | undefined> {
+    type responseType = {
+        count: number,
+        results: ITickerDividendsResponse[],
+        status: string
+    }
+
+    try {
+        await sleep(API_DELAY); // API limitation - remove if payed account
+
+        const URL = process.env.POLYGON_BASE_URL + `v2/reference/dividends/${tickerSymbol}?&apiKey=` + process.env.POLYGON_KEY;
+        const response = await axios.get(URL);
+
+        const tickerDividendsResponse = response.data as responseType;
+
+        if(tickerDividendsResponse.status === "OK" ) {
+            return tickerDividendsResponse.results;
+        }
+
+        console.log('   -----   Error response .STATUS: ',  tickerDividendsResponse.status);
+        console.log('   -----   Error response .COUNT: ',  tickerDividendsResponse.count);
+
+    } catch (error) {
+        // fetch ticker error - discard
+        return undefined;
+    }
+
+    return undefined;
+}
+
+export interface ITickerPriceResponse {
+    afterHours: number;
+    close: number;
+    from: string;
+    high: number;
+    low: number;
+    open: number;
+    preMarket: number;
+    status: string;
+    symbol: string;
+    volume: number;
+}
+
+export async function fetchTickerPriceForSymbol(tickerSymbol: string, date: Date): Promise<ITickerPriceResponse | undefined> {
+    try {
+        await sleep(API_DELAY); // API limitation - remove if payed account
+
+        const URL = process.env.POLYGON_BASE_URL + `v1/open-close/${tickerSymbol}/${formatDateForAPIRequest(date)}?adjusted=true&apiKey=` + process.env.POLYGON_KEY;
+        const response = await axios.get(URL);
+
+        const tickerPriceResponse = response.data as ITickerPriceResponse;
+
+        if(tickerPriceResponse.status === "OK" ) {
+            return tickerPriceResponse;
+        }
+
+    } catch (error) {
+        // fetch ticker error - discard
+        return undefined;
+    }
+
+    return undefined;
 }

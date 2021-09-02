@@ -1,6 +1,9 @@
-import {isDataAlreadyImported} from "./jobs/importCSV";
+import {createTestDataset, isDataAlreadyImported} from "./jobs/utils";
 import {updateTickersDetails} from "./jobs/updateDetails";
 import {importTickers} from "./jobs/importTickers";
+import TickerModel from "./models/Ticker";
+import TestTicker from "./models/TestTicker";
+import {updateTestScore} from "./jobs/updateScore";
 
 export default async function startServer() {
 
@@ -14,5 +17,8 @@ export default async function startServer() {
         // update tickers details
         await updateTickersDetails();
     }
+
+    createTestDataset();
+    updateTestScore();
 
 }

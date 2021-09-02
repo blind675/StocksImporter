@@ -1,6 +1,7 @@
 import TickerModel, {Ticker} from "../models/Ticker";
 import {fetchTickerDetailsForSymbol, ITickerDetailsResponse} from "../services/API/Polygon";
-import {minutesToDaysHoursMinutes} from "../services/utils";
+
+const cliProgress = require('cli-progress');
 
 function composeTickerDetails(detailsResponse: ITickerDetailsResponse, ticker: Ticker) {
 
@@ -28,6 +29,12 @@ export async function updateTickersDetails() {
     let updatedRecordsCount = 0;
     let removedRecordsCount = 0;
 
+    // create a new progress bar instance and use shades_classic theme
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
+    // start the progress bar with a total value of 200 and start value of 0
+    progressBar.start(tickersCount - 1, 0);
+
     for (let i = 0; i < tickersCount; i++) {
 
         // get ticker with null info update param (or oldest)
@@ -38,24 +45,23 @@ export async function updateTickersDetails() {
             ]
         });
 
-        console.log(`Updater  : ${i} / ${tickersCount} ~ ${minutesToDaysHoursMinutes(Math.floor(((tickersCount - i) / 5)))}`);
+        // console.log(`Updater  : ${i} / ${tickersCount} ~ ${minutesToDaysHoursMinutes(Math.floor(((tickersCount - i) / 5)))}`);
 
         if (ticker) {
-
-            console.log('Updater  : - Found ticker to update. Symbol: ', ticker.symbol);
+            // console.log('Updater  : - Found ticker to update. Symbol: ', ticker.symbol);
 
             // make API call
             const tickerDetailsResponse = await fetchTickerDetailsForSymbol(ticker.symbol);
 
             if (!tickerDetailsResponse) {
-                console.log('Updater  : - No details for ticker symbol: ', ticker.symbol);
-                console.log('         :   Remove ticker');
+                // console.log('Updater  : - No details for ticker symbol: ', ticker.symbol);
+                // console.log('         :   Remove ticker');
                 await ticker.remove();
 
                 removedRecordsCount += 1;
 
             } else {
-                console.log('Updater  : - Got details for ticker symbol: ', ticker.symbol);
+                // console.log('Updater  : - Got details for ticker symbol: ', ticker.symbol);
 
                 //put back in DB
                 await TickerModel.updateOne({symbol: ticker.symbol}, {
@@ -67,8 +73,11 @@ export async function updateTickersDetails() {
                 updatedRecordsCount += 1;
             }
         }
+
+        progressBar.update(i);
     }
 
+    progressBar.stop();
     console.log(`Updater  : Finished updating details`);
     console.log(`         : Updated ${updatedRecordsCount} records`);
     console.log(`         : Removed ${removedRecordsCount} records`);
