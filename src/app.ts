@@ -1,11 +1,11 @@
+import {loadClosedDates} from "./jobs/loadClosedDates";
 import {createTestDataset, isDataAlreadyImported} from "./jobs/utils";
 import {updateTickersDetails} from "./jobs/updateDetails";
 import {importTickers} from "./jobs/importTickers";
-import TickerModel from "./models/Ticker";
-import TestTicker from "./models/TestTicker";
 import {updateTestScore} from "./jobs/updateScore";
 
 export default async function startServer() {
+    await loadClosedDates();
 
     const isDataImported = await isDataAlreadyImported();
     if (isDataImported) {
@@ -18,7 +18,7 @@ export default async function startServer() {
         await updateTickersDetails();
     }
 
-    createTestDataset();
-    updateTestScore();
+    await createTestDataset();
+    await updateTestScore();
 
 }

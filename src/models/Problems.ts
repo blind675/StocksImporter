@@ -6,7 +6,7 @@ export interface Problems extends Document{
 }
 
 const ProblemsSchema = new Schema<Problems>({
-    symbol: { type: String, required: true },
+    ticker: { type: String, required: true },
     problem: { type: String, required: true },
 });
 

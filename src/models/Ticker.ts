@@ -1,5 +1,19 @@
 import {Schema, Document, model} from 'mongoose';
 
+export enum Movement {
+    up = 'up',
+    down = 'down',
+    none = 'none',
+}
+
+export interface Yield {
+    total: number;
+    growth: number;
+    dividends: number;
+    autoInvest: number;
+    date?: Date;
+}
+
 export interface Ticker extends Document {
     symbol: string;
     name: string;
@@ -34,6 +48,14 @@ export interface Ticker extends Document {
         exDate: Date;
         paymentDate: Date;
         amount: number;
+    }[];
+    yieldHistory?: Yield[],
+    yield?: Yield;
+    position?: number;
+    movement?: {
+        direction: Movement;
+        lastPosition: number;
+        lastMoveDate: Date;
     }[];
 }
 
@@ -75,7 +97,27 @@ const TickerSchema = new Schema<Ticker>({
         updatedDetails: Boolean,
         updatePriceDate: Date,
         updateHistoryDate: Date,
-    }
+    },
+    yieldHistory: [{
+        total: {type: Number, required: true},
+        growth: {type: Number, required: true},
+        dividends: {type: Number, required: true},
+        autoInvest: {type: Number, required: true},
+        date: Date
+    }],
+    yield: {
+        total: {type: Number, required: false},
+        growth: {type: Number, required: false},
+        dividends: {type: Number, required: false},
+        autoInvest: {type: Number, required: false},
+        date: {type: Date, required: false},
+    },
+    position: Number,
+    movement: [{
+        lastPosition: {type: Number, required: true},
+        direction: {type: String, required: true},
+        lastMoveDate: {type: Date, required: true},
+    }]
 });
 
 const TickerModel = model<Ticker>('Tickers', TickerSchema);

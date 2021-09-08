@@ -1,11 +1,22 @@
 import TickerModel from "../models/Ticker";
 import TestTicker from "../models/TestTicker";
 import TestTickerModel from "../models/TestTicker";
+import Problems from "../models/Problems";
 
 export async function isDataAlreadyImported() {
     const tickersCount = await TickerModel.estimatedDocumentCount();
 
     return tickersCount > 1000;
+}
+
+export async function reportAProblemForTicker(ticker: string, message: string) {
+
+    const problem = new Problems({
+        ticker,
+        problem: message
+    });
+
+    await problem.save();
 }
 
 /**
@@ -14,7 +25,7 @@ export async function isDataAlreadyImported() {
 export async function isTestDataImported() {
     const testTickersCount = await TestTickerModel.estimatedDocumentCount();
 
-    return testTickersCount > 10;
+    return testTickersCount > 3;
 }
 
 /**
@@ -29,10 +40,10 @@ export async function createTestDataset() {
         return;
     }
 
-    // move 20 tickers to a test dataset
+    // move 10 tickers to a test dataset
     const tickers = await TickerModel.find({}).limit(20);
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         const testTicker = new TestTicker({
             symbol: tickers[i].symbol,
             name: tickers[i].name,
@@ -42,5 +53,5 @@ export async function createTestDataset() {
         await testTicker.save();
     }
 
-    console.log(`Test     : Done`);
+    console.log(`Test     : Test Data set Imported`);
 }
