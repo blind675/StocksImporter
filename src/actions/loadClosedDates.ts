@@ -27,3 +27,22 @@ export function isMarketClosedOnDate(date: Date) {
         return closeDate.date.getTime() === date.getTime()
     });
 }
+
+export function correctDate(date: Date) {
+    correctWeekendDays(date);
+
+    while (isMarketClosedOnDate(date)) {
+        date.setDate(date.getDate() - 1);
+    }
+
+    correctWeekendDays(date);
+}
+
+function correctWeekendDays(date: Date) {
+    if (date.getDay() === 6) { // saturday
+        date.setDate(date.getDate() - 1);
+    }
+    if (date.getDay() === 0) { // sunday
+        date.setDate(date.getDate() - 2);
+    }
+}

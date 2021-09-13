@@ -59,7 +59,7 @@ export interface Ticker extends Document {
     }[];
 }
 
-const TickerSchema = new Schema<Ticker>({
+export const TickerSchema = new Schema<Ticker>({
     symbol: {type: String, required: true},
     name: {type: String, required: true},
     type: String,

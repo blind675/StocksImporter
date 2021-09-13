@@ -1,27 +1,12 @@
-import {
-    fetchTickerDividendsForSymbol,
-    fetchTickerPriceForSymbol,
-    ITickerDividendsResponse
-} from "../services/API/Polygon";
-import {isTestDataImported, reportAProblemForTicker} from "./utils";
-import TestTickerModel from "../models/TestTicker";
-import {Intervals} from "../models/constants";
-import {Movement, Ticker, Yield} from "../models/Ticker";
-import {formatDateForAPIRequest, millisToMinutesAndSeconds} from "../services/utils";
-import {addClosedDate, isMarketClosedOnDate} from "./loadClosedDates";
+import {getPriceForDate, importPriceForDate, reportAProblemForTicker} from "./utils";
+import TickerModel, {Movement, Yield} from "../models/Ticker";
+import {millisToMinutesAndSeconds} from "../services/utils";
+import {correctDate, isMarketClosedOnDate} from "../actions/loadClosedDates";
 
-/**
- * @deprecated use only for tests / development
- */
-export async function updateTestScore() {
-    if (!await isTestDataImported()) {
-        console.log(`Test     : No Test Data Set. Please call 'createTestDataset()' first.`);
-        return;
-    }
-
+export async function updateScoreJob() {
     const startTimestamp = Date.now();
 
-    const tickers = await TestTickerModel.find({})
+    const tickers = await TickerModel.find({})
     console.log(`Updater  : Start updating score for ${tickers.length} records.`);
 
     const yesterdayDate = new Date();
@@ -37,38 +22,10 @@ export async function updateTestScore() {
     correctDate(oneYearAgoDate);
 
     for (let i = 0; i < tickers.length; i++) {
-        // for (let i = 4; i < 5; i++) {
 
         const ticker = tickers[i];
         // get the dividends for the last year
         console.log(' Ticker: ', ticker.symbol);
-
-        const tickerDividendsResponse = await fetchTickerDividendsForSymbol(ticker.symbol);
-
-        if (!tickerDividendsResponse) {
-            await reportAProblemForTicker(ticker.symbol, "No dividends data from API from Ticker");
-        } else {
-
-            const intervalInfo = dividendsIntervalFromResponse(tickerDividendsResponse);
-            ticker.dividendsRegularity = intervalInfo.interval;
-            ticker.paysDividends = intervalInfo.paysDividends;
-
-            // store dividends history
-            ticker.dividendsHistory = tickerDividendsResponse
-                .map((dividends) => {
-                    const exDate = new Date(dividends.exDate);
-                    exDate.setHours(12, 0, 0, 0);
-
-                    const paymentDate = new Date(dividends.paymentDate);
-                    paymentDate.setHours(12, 0, 0, 0);
-
-                    return {
-                        exDate,
-                        paymentDate,
-                        amount: dividends.amount
-                    }
-                })
-        }
 
         let success = await importPriceForDate(yesterdayDate, ticker);
         if (!success) continue;
@@ -108,7 +65,7 @@ export async function updateTestScore() {
                     }
                 }
 
-                // console.log(ticker.symbol, ' - ASK: ', date);
+                // console.log(Date.now(), ': ',ticker.symbol, ' - ASK: ', date);
 
                 success = await importPriceForDate(date, ticker);
                 if (!success) continue;
@@ -117,8 +74,7 @@ export async function updateTestScore() {
                 const stockPrice = getPriceForDate(date, ticker);
                 if (stockPrice) {
 
-                    // console.log(ticker.symbol, ' - GOT: ', date, stockPrice, stockCount, lastYearDividends[i].amount);
-
+                    // console.log(Date.now(), ': ',ticker.symbol, ' - GOT: ', date, stockPrice, stockCount, lastYearDividends[i].amount);
                     dividendsValue += lastYearDividends[i].amount;
                     stockCount += (stockCount * lastYearDividends[i].amount) / stockPrice;
                 }
@@ -193,78 +149,4 @@ export async function updateTestScore() {
     const endTimestamp = Date.now();
     console.log(`Updater  : Finished updating score for ${tickers.length} records.`);
     console.log(`Updater  : Action took ${millisToMinutesAndSeconds(endTimestamp - startTimestamp)}`);
-}
-
-function correctWeekendDays(date: Date) {
-    if (date.getDay() === 6) { // saturday
-        date.setDate(date.getDate() - 1);
-    }
-    if (date.getDay() === 0) { // sunday
-        date.setDate(date.getDate() - 2);
-    }
-}
-
-function correctDate(date: Date) {
-    correctWeekendDays(date);
-
-    while (isMarketClosedOnDate(date)) {
-        date.setDate(date.getDate() - 1);
-    }
-
-    correctWeekendDays(date);
-}
-
-function getPriceForDate(date: Date, ticker: Ticker) {
-    return ticker.priceHistory?.find((priceData) => priceData.date.getTime() === date.getTime())?.price
-}
-
-async function importPriceForDate(date: Date, ticker: Ticker) {
-    if (!ticker.priceHistory) {
-        ticker.priceHistory = [];
-    }
-
-    if (!isPriceDataInList(date, ticker.priceHistory)) {
-        const tickerPriceResponse = await fetchTickerPriceForSymbol(ticker.symbol, date);
-
-        if (!tickerPriceResponse) {
-            await reportAProblemForTicker(ticker.symbol, `No PRICE Data - date: ${formatDateForAPIRequest(date)}`);
-            if (!isMarketClosedOnDate(date)) {
-                await addClosedDate(date);
-            }
-
-
-            return false;
-        } else {
-            ticker.priceHistory.push({
-                date: date,
-                price: tickerPriceResponse.close
-            })
-        }
-    }
-
-    return true;
-}
-
-function dividendsIntervalFromResponse(dividendsResponseList: ITickerDividendsResponse[]) {
-
-    //find how many dividends were payed in 2020
-    const lastYearDivCount = dividendsResponseList.filter((dividends) =>
-        dividends.exDate.includes('2020')
-    ).length;
-
-    if (lastYearDivCount === 0) {
-        return {interval: Intervals.None, paysDividends: false};
-    } else if (lastYearDivCount <= 4) {
-        return {interval: lastYearDivCount, paysDividends: true};
-    } else if (lastYearDivCount <= 12) {
-        return {interval: Intervals.Monthly, paysDividends: true};
-    } else if (lastYearDivCount > 12) {
-        return {interval: Intervals.Weekly, paysDividends: true};
-    }
-
-    return {interval: Intervals.None, paysDividends: false};
-}
-
-function isPriceDataInList(date: Date, list: { date: Date; price: number }[]) {
-    return !!list.find((priceData) => priceData.date.getTime() === date.getTime());
 }

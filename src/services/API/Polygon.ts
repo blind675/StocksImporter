@@ -1,5 +1,5 @@
 import axios from "axios";
-import {formatDateForAPIRequest, sleep} from "../utils";
+import {formatDateForAPIRequest, getAPIKey, sleep} from "../utils";
 import {API_DELAY, EXCHANGES, PAGE_SIZE} from "../../constants";
 
 export interface ITickerDetailsResponse {
@@ -31,7 +31,7 @@ export async function fetchTickerDetailsForSymbol(tickerSymbol: string): Promise
     try {
         await sleep(API_DELAY); // API limitation - remove if payed account
 
-        const URL = process.env.POLYGON_BASE_URL + `v1/meta/symbols/${tickerSymbol}/company?&apiKey=` + process.env.POLYGON_KEY;
+        const URL = process.env.POLYGON_BASE_URL + `v1/meta/symbols/${tickerSymbol}/company?&apiKey=` + getAPIKey();
         const response = await axios.get(URL);
 
         const tickerDetails = response.data as ITickerDetailsResponse;
@@ -80,7 +80,7 @@ export async function fetchTickers(): Promise<ITickerResponse[] | undefined> {
 
             await sleep(API_DELAY); // API limitation - remove if payed account
 
-            const start_url = process.env.POLYGON_BASE_URL + `v3/reference/tickers?market=stocks&exchange=${exchange}&active=true&sort=ticker&order=asc&limit=${PAGE_SIZE}&apiKey=` + process.env.POLYGON_KEY;
+            const start_url = process.env.POLYGON_BASE_URL + `v3/reference/tickers?market=stocks&exchange=${exchange}&active=true&sort=ticker&order=asc&limit=${PAGE_SIZE}&apiKey=` + getAPIKey();
             let response = await axios.get(start_url) as responseType;
             tickersList = tickersList.concat(response.data.results);
 
@@ -118,7 +118,7 @@ export async function fetchTickerDividendsForSymbol(tickerSymbol: string): Promi
     try {
         await sleep(API_DELAY); // API limitation - remove if payed account
 
-        const URL = process.env.POLYGON_BASE_URL + `v2/reference/dividends/${tickerSymbol}?&apiKey=` + process.env.POLYGON_KEY;
+        const URL = process.env.POLYGON_BASE_URL + `v2/reference/dividends/${tickerSymbol}?&apiKey=` + getAPIKey();
         const response = await axios.get(URL);
 
         const tickerDividendsResponse = response.data as responseType;
@@ -155,7 +155,7 @@ export async function fetchTickerPriceForSymbol(tickerSymbol: string, date: Date
     try {
         await sleep(API_DELAY); // API limitation - remove if payed account
 
-        const URL = process.env.POLYGON_BASE_URL + `v1/open-close/${tickerSymbol}/${formatDateForAPIRequest(date)}?adjusted=true&apiKey=` + process.env.POLYGON_KEY;
+        const URL = process.env.POLYGON_BASE_URL + `v1/open-close/${tickerSymbol}/${formatDateForAPIRequest(date)}?adjusted=true&apiKey=` + getAPIKey();
         const response = await axios.get(URL);
 
         const tickerPriceResponse = response.data as ITickerPriceResponse;

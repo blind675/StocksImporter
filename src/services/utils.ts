@@ -1,3 +1,25 @@
+let lastKeyUsedIndex = 1;
+
+export function getAPIKey() {
+    lastKeyUsedIndex += 1;
+
+    if (lastKeyUsedIndex > 3) {
+        lastKeyUsedIndex = 1;
+    }
+
+    switch (lastKeyUsedIndex) {
+        case 1:
+            return process.env.POLYGON_KEY_1;
+        case 2:
+            return process.env.POLYGON_KEY_2;
+        case 3:
+            return process.env.POLYGON_KEY_3;
+
+        default:
+            return process.env.POLYGON_KEY_1;
+    }
+}
+
 export function sleep(ms: number) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
@@ -24,9 +46,9 @@ export function minutesToDaysHoursMinutes(minutes: number) {
 }
 
 export function formatDateForAPIRequest(date: Date) {
-    let years = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
-    let months = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(date);
-    let days = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
+    let years = new Intl.DateTimeFormat('en', {year: 'numeric'}).format(date);
+    let months = new Intl.DateTimeFormat('en', {month: '2-digit'}).format(date);
+    let days = new Intl.DateTimeFormat('en', {day: '2-digit'}).format(date);
 
     //YYYY-MM-DD
     return `${years}-${months}-${days}`
