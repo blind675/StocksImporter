@@ -7,7 +7,7 @@ import {backupDBJob} from "./jobs/backupDBJob";
 import {updateHistoryJob} from "./jobs/updateHistoryJob";
 import {updateScoreJob} from "./jobs/updateScoreJob";
 
-export default async function startServer() {
+export default async function start() {
     await loadClosedDates();
 
     const isDataImported = await isDataAlreadyImported();

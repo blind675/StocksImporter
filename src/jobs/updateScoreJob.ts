@@ -3,11 +3,20 @@ import TickerModel, {Movement, Yield} from "../models/Ticker";
 import {millisToMinutesAndSeconds} from "../services/utils";
 import {correctDate, isMarketClosedOnDate} from "../actions/loadClosedDates";
 
+const cliProgress = require('cli-progress');
+
 export async function updateScoreJob() {
     const startTimestamp = Date.now();
 
     const tickers = await TickerModel.find({})
+    console.log(`Updater  : ${new Date().toUTCString()}`);
     console.log(`Updater  : Start updating score for ${tickers.length} records.`);
+
+    // create a new progress bar instance and use shades_classic theme
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
+    // start the progress bar with a total value of 200 and start value of 0
+    progressBar.start(tickers.length, 0);
 
     const yesterdayDate = new Date();
     yesterdayDate.setHours(12, 0, 0, 0);
@@ -25,7 +34,7 @@ export async function updateScoreJob() {
 
         const ticker = tickers[i];
         // get the dividends for the last year
-        console.log(' Ticker: ', ticker.symbol);
+        // console.log(' Ticker: ', ticker.symbol);
 
         let success = await importPriceForDate(yesterdayDate, ticker);
         if (!success) continue;
@@ -104,7 +113,11 @@ export async function updateScoreJob() {
             ticker.yieldHistory = [];
         }
         ticker.yieldHistory.push(yieldData)
+
+        progressBar.update(i);
     }
+
+    progressBar.stop();
 
     // sort tickers based on total yield
     tickers

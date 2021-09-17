@@ -5,17 +5,26 @@ import {correctDate, isMarketClosedOnDate} from "../actions/loadClosedDates";
 import {millisToMinutesAndSeconds} from "../services/utils";
 import TickerModel from "../models/Ticker";
 
+const cliProgress = require('cli-progress');
+
 export async function updateHistoryJob() {
     const startTimestamp = Date.now();
 
     const tickers = await TickerModel.find({})
+    console.log(`Updater  : ${new Date().toUTCString()}`);
     console.log(`Updater  : Start updating history for ${tickers.length} records.`);
+
+    // create a new progress bar instance and use shades_classic theme
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
+    // start the progress bar with a total value of 200 and start value of 0
+    progressBar.start(tickers.length, 0);
 
     for (let i = 0; i < tickers.length; i++) {
 
         const ticker = tickers[i];
         // get the dividends for the last year
-        console.log(' Ticker: ', ticker.symbol);
+        // console.log(' Ticker: ', ticker.symbol);
 
         const tickerDividendsResponse = await fetchTickerDividendsForSymbol(ticker.symbol);
 
@@ -72,9 +81,11 @@ export async function updateHistoryJob() {
 
             await ticker.save();
         }
+
+        progressBar.update(i);
     }
 
-
+    progressBar.stop();
     const endTimestamp = Date.now();
     console.log(`Updater  : Finished updating history for ${tickers.length} records.`);
     console.log(`Updater  : Action took ${millisToMinutesAndSeconds(endTimestamp - startTimestamp)}`);
