@@ -21,16 +21,16 @@ export default async function start() {
         await updateTickersDetails();
     }
 
-    // backup database cron job
-    const backupDB = cron.schedule('0 2 * * 2-5', backupDBJob);
-    backupDB.start();
-
     // update history cron job
     const updateHistory = cron.schedule('30 4 1-7 * sunday', updateHistoryJob);
     updateHistory.start();
 
+    // backup database cron job
+    const backupDB = cron.schedule('0 2 * * 2-6', backupDBJob);
+    backupDB.start();
+    
     // update score cron job
-    const updateScore = cron.schedule('30 4 * * 2-5', updateScoreJob);
+    const updateScore = cron.schedule('30 4 * * 2-6', updateScoreJob);
     updateScore.start();
 
 }
