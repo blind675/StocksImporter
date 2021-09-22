@@ -16,7 +16,7 @@ export async function updateScoreJob() {
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 
     // start the progress bar with a total value of 200 and start value of 0
-    progressBar.start(tickers.length, 0);
+    progressBar.start(tickers.length - 1, 0);
 
     const yesterdayDate = new Date();
     yesterdayDate.setHours(12, 0, 0, 0);
