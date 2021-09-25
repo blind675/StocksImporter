@@ -1,6 +1,6 @@
 import {getPriceForDate, importPriceForDate, reportAProblemForTicker} from "./utils";
 import TickerModel, {Movement, Yield} from "../models/Ticker";
-import {millisToMinutesAndSeconds} from "../services/utils";
+import {millisToTime} from "../services/utils";
 import {correctDate, isMarketClosedOnDate} from "../actions/loadClosedDates";
 
 const cliProgress = require('cli-progress');
@@ -161,5 +161,5 @@ export async function updateScoreJob() {
 
     const endTimestamp = Date.now();
     console.log(`Updater  : Finished updating score for ${tickers.length} records.`);
-    console.log(`Updater  : Action took ${millisToMinutesAndSeconds(endTimestamp - startTimestamp)}`);
+    console.log(`Updater  : Action took ${millisToTime(endTimestamp - startTimestamp)}`);
 }

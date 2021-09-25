@@ -1,7 +1,7 @@
 import TickerModel from "../models/Ticker";
 import BackupTicker from "../models/BackupTicker";
 import TickerBackupModel from "../models/BackupTicker";
-import {millisToMinutesAndSeconds} from "../services/utils";
+import {millisToTime} from "../services/utils";
 
 export async function backupDBJob() {
     const startTimestamp = Date.now();
@@ -35,5 +35,5 @@ export async function backupDBJob() {
 
     const endTimestamp = Date.now();
     console.log(`Backup   : DB Backed Up`);
-    console.log(`Backup   : Action took ${millisToMinutesAndSeconds(endTimestamp - startTimestamp)}`);
+    console.log(`Backup   : Action took ${millisToTime(endTimestamp - startTimestamp)}`);
 }

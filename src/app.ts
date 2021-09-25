@@ -26,10 +26,10 @@ export default async function start() {
     updateHistory.start();
 
     // backup database cron job
-    const backupDB = cron.schedule('5 1 * * 2-6', backupDBJob);
+    const backupDB = cron.schedule('5 8 * * 2-6', backupDBJob);
     backupDB.start();
 
     // update score cron job
-    const updateScore = cron.schedule('15 1 * * 2-6', updateScoreJob);
+    const updateScore = cron.schedule('30 8 * * 2-6', updateScoreJob);
     updateScore.start();
 }

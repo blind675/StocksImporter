@@ -2,7 +2,7 @@ import {importPriceForDate, reportAProblemForTicker} from "./utils";
 import {fetchTickerDividendsForSymbol, ITickerDividendsResponse} from "../services/API/Polygon";
 import {Intervals} from "../models/constants";
 import {correctDate, isMarketClosedOnDate} from "../actions/loadClosedDates";
-import {millisToMinutesAndSeconds} from "../services/utils";
+import {millisToTime} from "../services/utils";
 import TickerModel from "../models/Ticker";
 
 const cliProgress = require('cli-progress');
@@ -88,7 +88,7 @@ export async function updateHistoryJob() {
     progressBar.stop();
     const endTimestamp = Date.now();
     console.log(`Updater  : Finished updating history for ${tickers.length} records.`);
-    console.log(`Updater  : Action took ${millisToMinutesAndSeconds(endTimestamp - startTimestamp)}`);
+    console.log(`Updater  : Action took ${millisToTime(endTimestamp - startTimestamp)}`);
 }
 
 function dividendsIntervalFromResponse(dividendsResponseList: ITickerDividendsResponse[]) {

@@ -26,10 +26,11 @@ export function sleep(ms: number) {
     });
 }
 
-export function millisToMinutesAndSeconds(millis: number) {
-    const minutes = Math.floor(millis / 60000);
+export function millisToTime(millis: number) {
+    const hours = Math.floor(millis / 3600000).toFixed(0);
+    const minutes = Math.floor(millis / 60000).toFixed(0);
     const seconds = ((millis % 60000) / 1000).toFixed(0);
-    return `${minutes}:${(parseInt(seconds) < 10 ? "0" : "")}${seconds}`;
+    return `${hours}:${(parseInt(minutes) < 10 ? "0" : "")}${minutes}:${(parseInt(seconds) < 10 ? "0" : "")}${seconds}`;
 }
 
 
